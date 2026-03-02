@@ -11,8 +11,8 @@ import time
 import sys
 
 ### CONFIG ###
-output_style = "detailed"  # options are "summary" or "detailed"
-first_activity_date = "2026-01-01"  # format YYYY-MM-DD - this is the date after which you want to pull activities. Change as needed.
+output_style = "summary"  # options are "summary" or "detailed"
+first_activity_date = "2026-02-20"  # format YYYY-MM-DD - this is the date after which you want to pull activities. Change as needed.
 FTP = 250 # this is your Functional Threshold Power in watts - change as needed for accurate FTP% calculations. If you don't have an FTP, you can set this to 1 to avoid errors, but the FTP% values will not be meaningful.
 strava_api_url = "https://www.strava.com/api/v3" # this is the base URL for the Strava API - it should not need to be changed, but you can change it if you want to use a different version of the API or a different endpoint.
 ### END OF CONFIG ###
@@ -134,7 +134,18 @@ for i, activity in enumerate(activities_json):
     ACT_kilojoules = activity['kilojoules'] if 'kilojoules' in activity else "N/A"
     ACT_suffer_score = activity['suffer_score'] if 'suffer_score' in activity else "N/A"
 
+    #eprint(f"Processing activity {i+1}/{len(activities_json)}: \"{ACT_name}\" on {ACT_start_date} ({ACT_sport})")
+
+    known_sports = ["Ride", "VirtualRide", "Run", "Swim", "TableTennis", "WeightTraining", "Workout", "Hike"]
+    if ACT_sport not in known_sports:
+        eprint(f"Warning: Activity {i+1} has an unrecognized sport type: {ACT_sport}. It will be skipped.")
+        continue
+
+##########
+### VELO
+##########
     if ACT_sport == "Ride" or ACT_sport == "VirtualRide":
+
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time} | {ACT_distance_km}km | {ACT_elevation}m elev gain. Avg speed {ACT_avg_speed}kph, max {ACT_max_speed}kph. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Avg power {ACT_avg_watts}W ({ACT_avg_FTP_percent}% FTP), max {ACT_max_watts}W ({ACT_max_FTP_percent}% FTP). Avg cadence {ACT_cadence_rpm}rpm. Effort {ACT_kilojoules}kJ. Suffer score {ACT_suffer_score}.")
         else:
@@ -168,6 +179,10 @@ Suffer Score: {ACT_suffer_score}
 Device: {activity['device_name'] if 'device_name' in activity else "N/A"}
 URL: https://www.strava.com/activities/{activity['id']}
 """)
+            
+##########
+### CAP
+##########
     if ACT_sport == "Run":
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time} | {ACT_distance_km}km | {ACT_elevation}m elev gain. Avg speed {ACT_avg_speed}kph, pace {ACT_avg_pace_pkm}/km. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Avg cadence {ACT_cadence_spm}spm. Effort {ACT_kilojoules}kJ. Suffer score {ACT_suffer_score}.")
@@ -228,8 +243,11 @@ Suffer Score: {ACT_suffer_score}
 Device: {activity['device_name'] if 'device_name' in activity else "N/A"}
 URL: https://www.strava.com/activities/{activity['id']}
 """)
-    if ACT_sport == "TableTennis":
 
+##########
+### PING
+##########
+    if ACT_sport == "TableTennis":
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time}. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Suffer score {ACT_suffer_score}.")
         else:
@@ -255,7 +273,11 @@ Suffer Score: {ACT_suffer_score}
 Device: {activity['device_name'] if 'device_name' in activity else "N/A"}
 URL: https://www.strava.com/activities/{activity['id']}
 """)
-    if ACT_sport == "WeightTraining":
+            
+##########
+### RENFO
+##########
+    if ACT_sport == "WeightTraining" or ACT_sport == "Workout":
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time}. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Suffer score {ACT_suffer_score}.")
         else:
@@ -281,3 +303,40 @@ Suffer Score: {ACT_suffer_score}
 Device: {activity['device_name'] if 'device_name' in activity else "N/A"}
 URL: https://www.strava.com/activities/{activity['id']}
 """)
+
+##########
+### RANDO
+##########
+    if ACT_sport == "Hike":
+        if output_style == "summary":
+            print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time} | {ACT_distance_km}km | {ACT_elevation}m elev gain. Avg speed {ACT_avg_speed}kph, pace {ACT_avg_pace_pkm}/km. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Avg cadence {ACT_cadence_spm}spm. Effort {ACT_kilojoules}kJ. Suffer score {ACT_suffer_score}.")
+        else:
+            print(f"""🥾 STRAVA ACTIVITY SUMMARY
+==========================
+                            
+📋 ACTIVITY:
+Date: {ACT_start_date}
+Name: {ACT_name}
+Type: {ACT_sport}
+
+📊 DISTANCE & TIME:
+Distance: {ACT_distance_km}km
+Elevation: {ACT_elevation}m
+Moving Time: {ACT_moving_time}
+
+❤️ HEART RATE:
+Average: {ACT_avg_hr}bpm
+Max: {ACT_max_hr}bpm
+
+⚡ PERFORMANCE:
+Avg Speed: {ACT_avg_speed}km/h
+Avg pace: {ACT_avg_pace_pkm}/km
+Cadence: {ACT_cadence_spm}spm
+Effort: {ACT_kilojoules}kJ
+Suffer Score: {ACT_suffer_score}
+
+🎯 DEVICE & LINK:
+Device: {activity['device_name'] if 'device_name' in activity else "N/A"}
+URL: https://www.strava.com/activities/{activity['id']}
+""")
+
