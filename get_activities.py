@@ -9,13 +9,16 @@ import os
 import requests
 import time
 import sys
+import datetime
 
 ### CONFIG ###
 output_style = "summary"  # options are "summary" or "detailed"
-first_activity_date = "2026-02-20"  # format YYYY-MM-DD - this is the date after which you want to pull activities. Change as needed.
+LAST_DAYS = 60 # this will pull activities from the last n days - change the number of days as needed.
 FTP = 250 # this is your Functional Threshold Power in watts - change as needed for accurate FTP% calculations. If you don't have an FTP, you can set this to 1 to avoid errors, but the FTP% values will not be meaningful.
 strava_api_url = "https://www.strava.com/api/v3" # this is the base URL for the Strava API - it should not need to be changed, but you can change it if you want to use a different version of the API or a different endpoint.
 ### END OF CONFIG ###
+
+first_activity_date = (datetime.datetime.now() - datetime.timedelta(days=LAST_DAYS)).strftime("%Y-%m-%d")  
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -136,7 +139,7 @@ for i, activity in enumerate(activities_json):
 
     #eprint(f"Processing activity {i+1}/{len(activities_json)}: \"{ACT_name}\" on {ACT_start_date} ({ACT_sport})")
 
-    known_sports = ["Ride", "VirtualRide", "Run", "Swim", "TableTennis", "WeightTraining", "Workout", "Hike"]
+    known_sports = ["Ride", "MountainBikeRide", "VirtualRide", "Run", "Swim", "TableTennis", "WeightTraining", "Workout", "Hike"]
     if ACT_sport not in known_sports:
         eprint(f"Warning: Activity {i+1} has an unrecognized sport type: {ACT_sport}. It will be skipped.")
         continue
@@ -144,7 +147,7 @@ for i, activity in enumerate(activities_json):
 ##########
 ### VELO
 ##########
-    if ACT_sport == "Ride" or ACT_sport == "VirtualRide":
+    if ACT_sport == "Ride" or ACT_sport == "MountainBikeRide" or ACT_sport == "VirtualRide":
 
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time} | {ACT_distance_km}km | {ACT_elevation}m elev gain. Avg speed {ACT_avg_speed}kph, max {ACT_max_speed}kph. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Avg power {ACT_avg_watts}W ({ACT_avg_FTP_percent}% FTP), max {ACT_max_watts}W ({ACT_max_FTP_percent}% FTP). Avg cadence {ACT_cadence_rpm}rpm. Effort {ACT_kilojoules}kJ. Suffer score {ACT_suffer_score}.")
