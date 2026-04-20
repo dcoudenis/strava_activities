@@ -2,6 +2,8 @@ client_secrets.txt
 token.json
 activities.json
 out
+update_journal.sh
+*.bak
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

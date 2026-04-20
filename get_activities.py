@@ -139,7 +139,7 @@ for i, activity in enumerate(activities_json):
 
     #eprint(f"Processing activity {i+1}/{len(activities_json)}: \"{ACT_name}\" on {ACT_start_date} ({ACT_sport})")
 
-    known_sports = ["Ride", "MountainBikeRide", "VirtualRide", "Run", "Swim", "TableTennis", "WeightTraining", "Workout", "Hike"]
+    known_sports = ["Ride", "MountainBikeRide", "VirtualRide", "Run", "Swim", "TableTennis", "WeightTraining", "Workout", "Hike", "TrailRun"]
     if ACT_sport not in known_sports:
         eprint(f"Warning: Activity {i+1} has an unrecognized sport type: {ACT_sport}. It will be skipped.")
         continue
@@ -186,7 +186,7 @@ URL: https://www.strava.com/activities/{activity['id']}
 ##########
 ### CAP
 ##########
-    if ACT_sport == "Run":
+    if ACT_sport == "Run" or ACT_sport == "TrailRun":
         if output_style == "summary":
             print(f"{ACT_start_date} | \"{ACT_name}\" ({ACT_sport}) | {ACT_moving_time} | {ACT_distance_km}km | {ACT_elevation}m elev gain. Avg speed {ACT_avg_speed}kph, pace {ACT_avg_pace_pkm}/km. Avg HR {ACT_avg_hr}bpm, max {ACT_max_hr}bpm. Avg cadence {ACT_cadence_spm}spm. Effort {ACT_kilojoules}kJ. Suffer score {ACT_suffer_score}.")
         else:
